@@ -4,16 +4,32 @@ require("dotenv").config({
   path: process.env.NODE_ENV === "production" ? ".env.production" : ".env.development",
 });
 
+const dbConfig = {
+  HOST: process.env.DB_HOST,
+  USER: process.env.DB_USER,
+  PASSWORD: process.env.DB_PASSWORD,
+  DB: process.env.DB_NAME,
+  dialect: process.env.DB_DIALECT || "postgres",
+  ssl: process.env.DB_SSL === "true",
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+};
+
 const pool = new Pool({
-  host: process.env.DB_HOST,
+  host: dbConfig.HOST,
   port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl:
-    process.env.DB_SSL === "true"
-      ? { rejectUnauthorized: false }
-      : false,
+  user: dbConfig.USER,
+  password: dbConfig.PASSWORD,
+  database: dbConfig.DB,
+  ssl: dbConfig.ssl ? { rejectUnauthorized: false } : false,
+  max: dbConfig.pool.max,
+  min: dbConfig.pool.min,
+  idleTimeoutMillis: dbConfig.pool.idle,
+  connectionTimeoutMillis: dbConfig.pool.acquire,
 });
 
 pool.on("connect", () => {
@@ -50,4 +66,7 @@ const initializeDatabase = async () => {
 
 initializeDatabase();
 
-module.exports = pool;
+module.exports = {
+  dbConfig,
+  pool,
+};
