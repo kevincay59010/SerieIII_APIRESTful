@@ -6,6 +6,7 @@ const express = require("express");
 const cors = require("cors");
 
 const peliculasRoutes = require("./app/routes/netflyss.route");
+const authRoutes = require("./app/routes/auth.route");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/peliculas", peliculasRoutes);
 
 app.use((req, res) => {
